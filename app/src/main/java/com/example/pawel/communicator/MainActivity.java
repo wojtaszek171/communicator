@@ -1,36 +1,44 @@
 package com.example.pawel.communicator;
 
-import android.content.Intent;
+import android.app.Fragment;
+import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
+import android.view.MenuItem;
+import android.widget.Toast;
 
-import com.parse.Parse;
-
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Parse.enableLocalDatastore(this);
-        Parse.initialize(this);
         setContentView(R.layout.activity_main);
-        Button login = findViewById(R.id.login);
-        Button register = findViewById(R.id.register);
 
-        login.setOnClickListener(new View.OnClickListener() {
+        BottomNavigationView bottomMenu =(BottomNavigationView) findViewById(R.id.menuBottom);
+        bottomMenu.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
-            public void onClick(View v) {
-                startActivity(new Intent(getApplicationContext(), LoginActivity.class));
-            }
-        });
-
-        register.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(getApplicationContext(), RegisterActivity.class));
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                switch (item.getItemId()){
+                    case R.id.menu_friends:
+                        //Toast.makeText(getApplicationContext(), "Znajomi", Toast.LENGTH_SHORT).show();
+                        transaction.replace(R.id.container_main,new ConversationsFragment()).commit();
+                        break;
+                    case R.id.menu_conversations:
+                        //Toast.makeText(getApplicationContext(), "Rozmowy", Toast.LENGTH_SHORT).show();
+                        transaction.replace(R.id.container_main,new FriendsFragment()).commit();
+                        break;
+                    default:
+                        break;
+                }
+                return true;
             }
         });
     }
+
 }

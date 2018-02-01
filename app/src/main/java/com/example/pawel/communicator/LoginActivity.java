@@ -8,14 +8,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.parse.FindCallback;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
 import com.parse.ParseUser;
-
-import java.util.List;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -37,7 +32,7 @@ public class LoginActivity extends AppCompatActivity {
                                                 // Hooray! The user is logged in.
                                                 Toast.makeText(LoginActivity.this, "Pomyślnie zalogowano", Toast.LENGTH_SHORT).show();
                                                 finish();
-                                                startActivity(new Intent(getApplicationContext(), FriendsActivity.class));
+                                                startActivity(new Intent(getApplicationContext(), MainActivity.class));
                                             } else {
                                                 // Signup failed. Look at the ParseException to see what happened.
                                                 // Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
