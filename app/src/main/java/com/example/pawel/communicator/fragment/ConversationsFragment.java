@@ -1,24 +1,27 @@
-package com.example.pawel.communicator;
+package com.example.pawel.communicator.fragment;
 
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.pawel.communicator.R;
+
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link FriendsFragment.OnFragmentInteractionListener} interface
+ * {@link ConversationsFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link FriendsFragment#newInstance} factory method to
+ * Use the {@link ConversationsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class FriendsFragment extends Fragment {
+public class ConversationsFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -30,7 +33,7 @@ public class FriendsFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    public FriendsFragment() {
+    public ConversationsFragment() {
         // Required empty public constructor
     }
 
@@ -40,11 +43,11 @@ public class FriendsFragment extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment FriendsFragment.
+     * @return A new instance of fragment ConversationsFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static FriendsFragment newInstance(String param1, String param2) {
-        FriendsFragment fragment = new FriendsFragment();
+    public static ConversationsFragment newInstance(String param1, String param2) {
+        ConversationsFragment fragment = new ConversationsFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -55,7 +58,7 @@ public class FriendsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getActivity().setTitle("Znajomi");
+
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
@@ -66,7 +69,8 @@ public class FriendsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_friends, container, false);
+        ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("Rozmowy");
+        return inflater.inflate(R.layout.fragment_conversations, container, false);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -82,7 +86,7 @@ public class FriendsFragment extends Fragment {
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
         } else {
-            Toast.makeText(context, "Znajomi", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Rozmowy", Toast.LENGTH_SHORT).show();
         }
     }
 
