@@ -11,7 +11,9 @@ import android.widget.Toast;
 
 import com.example.pawel.communicator.R;
 import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 import com.parse.SignUpCallback;
 
 public class RegisterActivity extends AppCompatActivity {
@@ -31,7 +33,7 @@ public class RegisterActivity extends AppCompatActivity {
                 String password = ((EditText) findViewById(R.id.pass)).getText().toString();
                 String password_2 = ((EditText) findViewById(R.id.pass_repeat)).getText().toString();
                 if(email != null && pseudonym != null && password !=null && password_2 !=null){
-                    ParseUser user = new ParseUser();
+                    final ParseUser user = new ParseUser();
                     user.setUsername(pseudonym);
                     user.setEmail(email);
                     user.setPassword(password);
@@ -39,6 +41,14 @@ public class RegisterActivity extends AppCompatActivity {
                         @Override
                         public void done(ParseException e) {
                             if (e == null) {
+                                final ParseObject userData = new ParseObject("UserData");
+                                userData.saveEventually(new SaveCallback() {
+                                    @Override
+                                    public void done(ParseException e) {
+                                        user.put("UserData", userData);
+                                    }
+                                });
+
                                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                                 startActivity(intent);
                                 finish();

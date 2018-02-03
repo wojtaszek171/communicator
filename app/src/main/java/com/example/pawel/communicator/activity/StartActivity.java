@@ -8,6 +8,7 @@ import android.widget.Button;
 
 import com.example.pawel.communicator.R;
 import com.parse.Parse;
+import com.parse.ParseUser;
 
 public class StartActivity extends AppCompatActivity {
 
@@ -16,10 +17,13 @@ public class StartActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Parse.enableLocalDatastore(this);
         Parse.initialize(this);
+        if(ParseUser.getCurrentUser()!=null){
+            finish();
+            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+        }
         setContentView(R.layout.activity_start);
         Button login = findViewById(R.id.login);
         Button register = findViewById(R.id.register);
-
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

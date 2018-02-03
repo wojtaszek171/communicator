@@ -17,13 +17,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.pawel.communicator.R;
-import com.example.pawel.communicator.SearchFriendsAdapter;
+import com.example.pawel.communicator.adapter.SearchFriendsAdapter;
 import com.parse.FindCallback;
+import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -90,6 +93,8 @@ public class FriendsFragment extends Fragment {
 
         ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("Znajomi");
         final FloatingActionButton addFriend = view.findViewById(R.id.addFriend);
+
+
         addFriend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -119,7 +124,7 @@ public class FriendsFragment extends Fragment {
                                             usersList.add(user);
                                         }
                                         adapter = new SearchFriendsAdapter(addFriendDialog.getContext(), usersList);
-                                        list =addFriendDialog.findViewById(R.id.list_search_users);
+                                        list =(ListView) addFriendDialog.findViewById(R.id.list_search_users);
                                         list.setAdapter(adapter);
                                     }else{
 
