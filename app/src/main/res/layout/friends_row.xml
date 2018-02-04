@@ -16,13 +16,12 @@
         app:srcCompat="@mipmap/ic_launcher_round" />
 
     <TextView
-        android:id="@+id/search_username"
+        android:id="@+id/friend_username"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_marginStart="19dp"
+        android:layout_marginStart="23dp"
         android:layout_toEndOf="@+id/friend_avatar"
-        android:layout_toStartOf="@+id/inviteButton"
         android:text="TextView"
         android:textSize="18sp" />
 
@@ -33,5 +32,15 @@
         android:layout_alignParentEnd="true"
         android:layout_alignTop="@+id/friend_avatar"
         android:layout_marginEnd="11dp"
-        android:text="Zaproś" />
+        android:text="Zaakceptuj"
+        android:visibility="visible" />
+
+    <ImageButton
+        android:id="@+id/message_friends"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/inviteButton"
+        android:layout_centerVertical="true"
+        android:backgroundTint="?attr/colorAccent"
+        app:srcCompat="@android:drawable/ic_dialog_email" />
 </RelativeLayout>

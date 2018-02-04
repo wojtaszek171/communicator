@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.pawel.communicator.R;
+import com.example.pawel.communicator.adapter.FriendsListAdapter;
 import com.example.pawel.communicator.adapter.SearchFriendsAdapter;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
@@ -47,8 +49,11 @@ public class FriendsFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-    ArrayList<ParseObject> usersList;
-    ListView list;
+    ArrayList<ParseObject> usersListSearch;
+    ArrayList<HashMap> friendsList;
+    ListView listSearch;
+    ListView listFriends;
+    FriendsListAdapter friendsAdapter;
     SearchFriendsAdapter adapter;
 
     private OnFragmentInteractionListener mListener;
@@ -92,54 +97,80 @@ public class FriendsFragment extends Fragment {
         final View view = inflater.inflate(R.layout.fragment_friends, container, false);
 
         ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("Znajomi");
+
+        ParseObject userData = ParseUser.getCurrentUser().getParseObject("UserData");
+
+        ArrayList<HashMap> inviters = null;
+        try {
+            inviters =(ArrayList<HashMap>) userData.fetchIfNeeded().get("Inviters");     //needed because if is null then throws exception
+        } catch (ParseException e) {
+            Log.v("LOG_TAG", e.toString());
+            e.printStackTrace();
+        }
+        if(inviters==null){
+            inviters= new ArrayList<HashMap>();
+        }
+
+        friendsList = (ArrayList<HashMap>) userData.get("Friends");
+        if(friendsList==null){
+            friendsList = new ArrayList<HashMap>();
+        }
+        inviters.addAll(friendsList);
+
+        friendsAdapter = new FriendsListAdapter(view.getContext(),inviters);
+        listFriends =(ListView) view.findViewById(R.id.list_friends);
+        listFriends.setAdapter(friendsAdapter);
+
+        addFriendOnClickAndDialog(view);
+
+        return view;
+    }
+
+    private void addFriendOnClickAndDialog(View view) {
         final FloatingActionButton addFriend = view.findViewById(R.id.addFriend);
-
-
         addFriend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    final Dialog addFriendDialog = new Dialog(getContext());
-                    addFriendDialog.setContentView(R.layout.add_friend_dialog);
-                    addFriendDialog.setTitle("Dodaj znajomego");
-                    ImageButton searchButton = addFriendDialog.findViewById(R.id.search);
-                    searchButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            EditText usernameText = addFriendDialog.findViewById(R.id.friend_name);
-                            String friendUsername =  usernameText.getText().toString();
-                            ParseQuery<ParseObject> query = ParseQuery.getQuery("_User");
-                            query.whereEqualTo("username", friendUsername);
-                            query.findInBackground(new FindCallback<ParseObject>() {
-                                @Override
-                                public void done(List<ParseObject> objects, ParseException e) {
-                                    if(e==null){
-                                        usersList = new ArrayList<ParseObject>();
-                                        if(objects.size()<=0) {
-                                            ((TextView) addFriendDialog.findViewById(R.id.search_info)).setVisibility(View.VISIBLE);
-                                            ((TextView) addFriendDialog.findViewById(R.id.search_info)).setText("Nie znaleziono");
-                                        }
-                                        else
-                                            ((TextView) addFriendDialog.findViewById(R.id.search_info)).setVisibility(View.INVISIBLE);
-                                        for (ParseObject user : objects) {
-                                            usersList.add(user);
-                                        }
-                                        adapter = new SearchFriendsAdapter(addFriendDialog.getContext(), usersList);
-                                        list =(ListView) addFriendDialog.findViewById(R.id.list_search_users);
-                                        list.setAdapter(adapter);
-                                    }else{
-
+                final Dialog addFriendDialog = new Dialog(getContext());
+                addFriendDialog.setContentView(R.layout.add_friend_dialog);
+                addFriendDialog.setTitle("Dodaj znajomego");
+                ImageButton searchButton = addFriendDialog.findViewById(R.id.search);
+                searchButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        EditText usernameText = addFriendDialog.findViewById(R.id.friend_name);
+                        String friendUsername =  usernameText.getText().toString();
+                        ParseQuery<ParseObject> query = ParseQuery.getQuery("_User");
+                        query.whereEqualTo("username", friendUsername);
+                        query.findInBackground(new FindCallback<ParseObject>() {
+                            @Override
+                            public void done(List<ParseObject> objects, ParseException e) {
+                                if(e==null){
+                                    usersListSearch = new ArrayList<ParseObject>();
+                                    if(objects.size()<=0) {
+                                        ((TextView) addFriendDialog.findViewById(R.id.search_info)).setVisibility(View.VISIBLE);
+                                        ((TextView) addFriendDialog.findViewById(R.id.search_info)).setText("Nie znaleziono");
                                     }
+                                    else
+                                        ((TextView) addFriendDialog.findViewById(R.id.search_info)).setVisibility(View.INVISIBLE);
+                                    for (ParseObject user : objects) {
+                                        usersListSearch.add(user);
+                                    }
+                                    adapter = new SearchFriendsAdapter(addFriendDialog.getContext(), usersListSearch);
+                                    listSearch =(ListView) addFriendDialog.findViewById(R.id.list_search_users);
+                                    listSearch.setAdapter(adapter);
+                                }else{
+
                                 }
-                            });
+                            }
+                        });
 
-                        }
-                    });
+                    }
+                });
 
-                    addFriendDialog.show();
+                addFriendDialog.show();
             }
         });
-
-        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

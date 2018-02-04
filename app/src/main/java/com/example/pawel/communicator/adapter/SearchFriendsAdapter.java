@@ -12,7 +12,6 @@ import android.widget.TextView;
 
 import com.example.pawel.communicator.R;
 import com.parse.GetCallback;
-import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -42,7 +41,7 @@ public class SearchFriendsAdapter extends ArrayAdapter<String>{
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView = inflater.inflate(R.layout.search_friends_row, parent, false);
         TextView nameField = rowView.findViewById(R.id.search_username);
-        ImageView avatarField = rowView.findViewById(R.id.search_avatar);
+        ImageView avatarField = rowView.findViewById(R.id.friend_avatar);
         nameField.setText(values.get(position).getString("username"));
         final Button inviteButton = rowView.findViewById(R.id.inviteButton);
         ParseQuery<ParseObject> query = ParseQuery.getQuery("UserData");
@@ -90,6 +89,7 @@ public class SearchFriendsAdapter extends ArrayAdapter<String>{
                                                 nestedInviters = new ArrayList<HashMap>();
                                             HashMap invitersObject = new HashMap();
                                             invitersObject.put("inviter", ParseUser.getCurrentUser().getObjectId());
+                                            invitersObject.put("username", ParseUser.getCurrentUser().getUsername());
                                             nestedInviters.add(invitersObject);
                                             userData.put("Inviters",nestedInviters);
                                             userData.saveEventually();
