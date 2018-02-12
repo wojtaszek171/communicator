@@ -46,13 +46,19 @@ public class RegisterActivity extends AppCompatActivity {
                                     @Override
                                     public void done(ParseException e) {
                                         user.put("UserData", userData);
+                                        user.saveEventually(new SaveCallback() {
+                                            @Override
+                                            public void done(ParseException e) {
+                                                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                                startActivity(intent);
+                                                finish();
+                                                Toast.makeText(getApplicationContext(), "Zarejestrowano pomyślnie!", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
                                     }
                                 });
 
-                                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                                startActivity(intent);
-                                finish();
-                                Toast.makeText(getApplicationContext(), "Zarejestrowano pomyślnie!", Toast.LENGTH_SHORT).show();
+
                             } else {
                                 Toast.makeText(getApplicationContext(), "Coś poszło nie tak...", Toast.LENGTH_SHORT).show();
                             }

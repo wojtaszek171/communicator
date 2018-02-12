@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.pawel.communicator.R;
+import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -19,6 +20,7 @@ import com.parse.ParseUser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 
 /**
@@ -44,57 +46,60 @@ public class SearchFriendsAdapter extends ArrayAdapter<String>{
         ImageView avatarField = rowView.findViewById(R.id.friend_avatar);
         nameField.setText(values.get(position).getString("username"));
         final Button inviteButton = rowView.findViewById(R.id.inviteButton);
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("UserData");
 
-        ParseObject userData = ParseUser.getCurrentUser().getParseObject("UserData");
-                ArrayList<HashMap> myInvitations = null;
-                try {
-                    myInvitations =(ArrayList) userData.fetchIfNeeded().get("Invitations");     //needed because if is null then throws exception
-                } catch (ParseException e) {
-                    Log.v("LOG_TAG", e.toString());
-                    e.printStackTrace();
-                }
-                if(userData.get("Invitations")!=null)
-                    for (HashMap invitation : myInvitations) {
-                        if(values.get(position).getObjectId().equals(invitation.get("invited"))) {
-                            inviteButton.setText("Zaproszony");
-                            inviteButton.setEnabled(false);
+                ParseQuery<ParseObject> query1 = new ParseQuery<ParseObject>("Friends");
+                query1.whereEqualTo("inviter",ParseUser.getCurrentUser().getObjectId());
+
+                ParseQuery<ParseObject> query2 = new ParseQuery<ParseObject>("Friends");
+                query2.whereEqualTo("invited",ParseUser.getCurrentUser().getObjectId());
+
+                List<ParseQuery<ParseObject>> queries = new ArrayList<ParseQuery<ParseObject>>();
+                queries.add(query1);
+                queries.add(query2);
+
+                ParseQuery<ParseObject> mainQuery = ParseQuery.or(queries);
+                mainQuery.findInBackground(new FindCallback<ParseObject>() {
+                    public void done(List<ParseObject> results, ParseException e) {
+                        if (e == null) {
+                            for (ParseObject relation : results) {
+                                if(relation.get("inviter").equals(ParseUser.getCurrentUser().getObjectId())){
+                                    if(relation.get("isConfirmed").equals("false")){
+                                        inviteButton.setText("Nie zaakceptował");
+                                        inviteButton.setEnabled(false);
+                                    }else{
+                                        inviteButton.setText("Znajomy");
+                                        inviteButton.setEnabled(false);
+                                    }
+                                }
+                                if(relation.get("invited").equals(ParseUser.getCurrentUser().getObjectId())){
+                                    if(relation.get("isConfirmed").equals("false")){
+                                        inviteButton.setText("Zaprosił cię");
+                                        inviteButton.setEnabled(false);
+                                    }else{
+                                        inviteButton.setText("Znajomy");
+                                        inviteButton.setEnabled(false);
+                                    }
+                                }
+
+                            }
                         }
                     }
+                });
+
 
 
         inviteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ParseUser user = ParseUser.getCurrentUser();
-                ParseObject userData = user.getParseObject("UserData");
 
-                            final HashMap invitationObject = new HashMap();
-                            invitationObject.put("invited", values.get(position).getObjectId());
-
-                            ArrayList<HashMap> nestedInvitations = (ArrayList) userData.get("Invitations");
-                            if(nestedInvitations==null)
-                                nestedInvitations = new ArrayList<HashMap>();
-                            nestedInvitations.add(invitationObject);
-                            userData.put("Invitations",nestedInvitations);
-                            userData.saveEventually();
-
-                            ParseQuery<ParseObject> query = ParseQuery.getQuery("_User");
-                            query.getInBackground(values.get(position).getObjectId(), new GetCallback<ParseObject>() {
-                                        @Override
-                                        public void done(ParseObject object, ParseException e) {
-                                            ParseObject userData = object.getParseObject("UserData");
-                                            ArrayList<HashMap> nestedInviters = (ArrayList) object.get("Inviters");
-                                            if(nestedInviters==null)
-                                                nestedInviters = new ArrayList<HashMap>();
-                                            HashMap invitersObject = new HashMap();
-                                            invitersObject.put("inviter", ParseUser.getCurrentUser().getObjectId());
-                                            invitersObject.put("username", ParseUser.getCurrentUser().getUsername());
-                                            nestedInviters.add(invitersObject);
-                                            userData.put("Inviters",nestedInviters);
-                                            userData.saveEventually();
-                                        }
-                            });
+                            ParseObject newFriendInvitation = new ParseObject("Friends");
+                            newFriendInvitation.put("inviter",user.getObjectId());
+                            newFriendInvitation.put("usernameInviter",user.getUsername());
+                            newFriendInvitation.put("invited",values.get(position).getObjectId());
+                            newFriendInvitation.put("usernameInvited",values.get(position).getString("username"));
+                            newFriendInvitation.put("isConfirmed",false);
+                            newFriendInvitation.saveEventually();
 
 
                         inviteButton.setText("Zaproszono");

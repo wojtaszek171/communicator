@@ -98,28 +98,56 @@ public class FriendsFragment extends Fragment {
 
         ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("Znajomi");
 
-        ParseObject userData = ParseUser.getCurrentUser().getParseObject("UserData");
+        ParseQuery<ParseObject> query1 = new ParseQuery<ParseObject>("Friends");
+        query1.whereEqualTo("inviter",ParseUser.getCurrentUser().getObjectId());
 
-        ArrayList<HashMap> inviters = null;
-        try {
-            inviters =(ArrayList<HashMap>) userData.fetchIfNeeded().get("Inviters");     //needed because if is null then throws exception
-        } catch (ParseException e) {
-            Log.v("LOG_TAG", e.toString());
-            e.printStackTrace();
-        }
-        if(inviters==null){
-            inviters= new ArrayList<HashMap>();
-        }
+        ParseQuery<ParseObject> query2 = new ParseQuery<ParseObject>("Friends");
+        query2.whereEqualTo("invited",ParseUser.getCurrentUser().getObjectId());
 
-        friendsList = (ArrayList<HashMap>) userData.get("Friends");
-        if(friendsList==null){
-            friendsList = new ArrayList<HashMap>();
-        }
-        inviters.addAll(friendsList);
+        List<ParseQuery<ParseObject>> queries = new ArrayList<ParseQuery<ParseObject>>();
+        queries.add(query1);
+        queries.add(query2);
 
-        friendsAdapter = new FriendsListAdapter(view.getContext(),inviters);
-        listFriends =(ListView) view.findViewById(R.id.list_friends);
-        listFriends.setAdapter(friendsAdapter);
+        ParseQuery<ParseObject> mainQuery = ParseQuery.or(queries);
+        mainQuery.findInBackground(new FindCallback<ParseObject>() {
+            public void done(List<ParseObject> results, ParseException e) {
+                if (e == null) {
+                    ArrayList<HashMap> listOfFriendsNotConfirmed = new ArrayList<HashMap>();
+                    ArrayList<HashMap> listOfFriends = new ArrayList<HashMap>();
+                    for (ParseObject relation : results) {
+
+                        if(relation.get("inviter").equals(ParseUser.getCurrentUser().getObjectId())){
+                            final HashMap friend = new HashMap();
+                            friend.put("invited",relation.getString("invited"));
+                            friend.put("usernameInvited",relation.getString("usernameInvited"));
+                            friend.put("isConfirmed",relation.get("isConfirmed"));
+                            if(relation.get("isConfirmed").equals("false")){
+                                listOfFriendsNotConfirmed.add(friend);
+                            }else{
+                                listOfFriends.add(friend);
+                            }
+                        }
+                        if(relation.get("invited").equals(ParseUser.getCurrentUser().getObjectId())){
+                            final HashMap friend = new HashMap();
+                            friend.put("inviter",relation.getString("inviter"));
+                            friend.put("usernameInviter",relation.getString("usernameInviter"));
+                            friend.put("isConfirmed",relation.get("isConfirmed"));
+                            if(relation.get("isConfirmed").equals("false")){
+                                listOfFriendsNotConfirmed.add(friend);
+                            }else{
+                                listOfFriends.add(friend);
+                            }
+                        }
+                    }
+                    listOfFriendsNotConfirmed.addAll(listOfFriends);    //all friends (confirmed and not)
+                    friendsAdapter = new FriendsListAdapter(view.getContext(),listOfFriendsNotConfirmed);
+                    listFriends =(ListView) view.findViewById(R.id.list_friends);
+                    listFriends.setAdapter(friendsAdapter);
+                }
+            }
+        });
+
+
 
         addFriendOnClickAndDialog(view);
 
