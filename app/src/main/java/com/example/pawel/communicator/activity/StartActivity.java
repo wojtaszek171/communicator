@@ -15,8 +15,10 @@ public class StartActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Parse.enableLocalDatastore(this);
-        Parse.initialize(this);
+        if(Parse.isLocalDatastoreEnabled()!=true){
+            Parse.enableLocalDatastore(this);
+            Parse.initialize(this);
+        }
         if(ParseUser.getCurrentUser()!=null){
             finish();
             startActivity(new Intent(getApplicationContext(), MainActivity.class));

@@ -1,6 +1,7 @@
 package com.example.pawel.communicator.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.pawel.communicator.R;
+import com.example.pawel.communicator.activity.ConversationActivity;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.Parse;
@@ -20,6 +22,7 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -94,7 +97,40 @@ public class FriendsListAdapter extends ArrayAdapter<String>{
                     @Override
                     public void onClick(View v) {
                         //start conversation
-                        Toast.makeText(context, "conversation", Toast.LENGTH_SHORT).show();
+                        final Integer[] noConversation = {0};
+                        ParseQuery<ParseObject> query1 = new ParseQuery<ParseObject>("Conversation");
+                        final ArrayList<String> users = new ArrayList<String>();
+                        users.add((String) friends.get(position).get("usernameInviter"));
+                        users.add((String) friends.get(position).get("usernameInvited"));
+                        query1.whereContainsAll("participants",users);
+                        query1.findInBackground(new FindCallback<ParseObject>() {
+                            @Override
+                            public void done(List<ParseObject> objects, ParseException e) {
+                                for(ParseObject obj : objects){
+                                    if(((ArrayList<String>) obj.get("participants")).size()==2){
+                                        Intent intent = new Intent(getContext(), ConversationActivity.class);
+                                        intent.putExtra("conversationId", obj.getObjectId());
+                                        getContext().startActivity(intent);
+                                        //Toast.makeText(context, "conversation - exist", Toast.LENGTH_SHORT).show();
+                                        noConversation[0] =1;
+                                    }
+                                }
+                                if(noConversation[0]==0){
+                                    final ParseObject newConversation = new ParseObject("Conversation");
+                                    newConversation.put("participants",users);
+                                    newConversation.saveEventually(new SaveCallback() {
+                                        @Override
+                                        public void done(ParseException e) {
+                                            Intent intent = new Intent(getContext(), ConversationActivity.class);
+                                            intent.putExtra("conversationId", newConversation.getObjectId());
+                                            getContext().startActivity(intent);
+                                            //Toast.makeText(context, "conversation - new", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                }
+                            }
+                        });
+
                     }
                 });
             }

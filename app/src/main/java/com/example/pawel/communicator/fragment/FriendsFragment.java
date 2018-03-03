@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +20,6 @@ import com.example.pawel.communicator.R;
 import com.example.pawel.communicator.adapter.FriendsListAdapter;
 import com.example.pawel.communicator.adapter.SearchFriendsAdapter;
 import com.parse.FindCallback;
-import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -192,6 +190,8 @@ public class FriendsFragment extends Fragment {
                                 }
                             }
                         });
+
+
 
                     }
                 });

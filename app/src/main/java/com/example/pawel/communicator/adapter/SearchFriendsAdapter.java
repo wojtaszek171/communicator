@@ -49,9 +49,11 @@ public class SearchFriendsAdapter extends ArrayAdapter<String>{
 
                 ParseQuery<ParseObject> query1 = new ParseQuery<ParseObject>("Friends");
                 query1.whereEqualTo("inviter",ParseUser.getCurrentUser().getObjectId());
+                query1.whereEqualTo("invited",values.get(position).getObjectId());
 
                 ParseQuery<ParseObject> query2 = new ParseQuery<ParseObject>("Friends");
                 query2.whereEqualTo("invited",ParseUser.getCurrentUser().getObjectId());
+                query2.whereEqualTo("inviter",values.get(position).getObjectId());
 
                 List<ParseQuery<ParseObject>> queries = new ArrayList<ParseQuery<ParseObject>>();
                 queries.add(query1);

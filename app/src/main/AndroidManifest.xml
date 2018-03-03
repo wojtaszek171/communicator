@@ -33,6 +33,7 @@
         <activity android:name=".activity.MainActivity" />
         <activity android:name=".activity.RegisterActivity" />
         <activity android:name=".activity.LoginActivity" />
+        <activity android:name=".activity.ConversationActivity"></activity>
     </application>
 
 </manifest>
